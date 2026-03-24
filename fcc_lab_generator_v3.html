@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FCC Lab Prompt Generator v3</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#ffffff;--bg2:#f5f5f3;--bg3:#ebebea;--bg4:#e2e2df;
+  --text:#1a1a1a;--text2:#555;--text3:#999;
+  --border:rgba(0,0,0,0.11);--border2:rgba(0,0,0,0.22);
+  --radius:8px;--radius-lg:12px;
+  --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-mono:'Fira Mono','Cascadia Code','Consolas',monospace;
+  --accent:#1a1a1a;--success:#2a7a2a;
+  --star:#c07a00;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1c1c1c;--bg2:#252525;--bg3:#2e2e2e;--bg4:#383838;
+    --text:#f0f0f0;--text2:#aaa;--text3:#666;
+    --border:rgba(255,255,255,0.09);--border2:rgba(255,255,255,0.22);
+    --accent:#f0f0f0;--success:#5dc45d;--star:#f0b429;
+  }
+}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh;}
+.page{max-width:820px;margin:0 auto;padding:2rem 1.5rem 4rem;}
+header{margin-bottom:1.75rem;padding-bottom:1.25rem;border-bottom:.5px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+header h1{font-size:20px;font-weight:500;letter-spacing:-.01em;margin-bottom:3px;}
+header p{font-size:13px;color:var(--text2);}
+.random-all-btn{font-family:var(--font-sans);font-size:13px;padding:8px 16px;border-radius:var(--radius);border:.5px solid var(--border2);background:var(--bg3);color:var(--text);cursor:pointer;white-space:nowrap;transition:background .15s;font-weight:500;}
+.random-all-btn:hover{background:var(--bg4);}
+.section{margin-bottom:1.2rem;}
+.section-title{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:7px;font-weight:500;}
+.row{display:flex;gap:10px;flex-wrap:wrap;}
+.field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:150px;}
+input[type=text],textarea,select{
+  font-family:var(--font-sans);font-size:13px;
+  background:var(--bg2);border:.5px solid var(--border);border-radius:var(--radius);
+  color:var(--text);padding:8px 12px;outline:none;width:100%;transition:border-color .15s;
+}
+input[type=text]:focus,textarea:focus,select:focus{border-color:var(--border2);}
+input[type=text]::placeholder,textarea::placeholder{color:var(--text3);}
+select option{background:var(--bg2);color:var(--text);}
+.pill-group{display:flex;flex-wrap:wrap;gap:6px;}
+.pill{font-size:12px;padding:4px 11px;border-radius:20px;border:.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font-sans);transition:all .15s;}
+.pill:hover{border-color:var(--accent);color:var(--text);}
+.pill.active{background:var(--bg3);color:var(--text);border-color:var(--border2);font-weight:500;}
+.toggle-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.toggle-item{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;}
+.toggle-item input[type=checkbox]{width:14px;height:14px;cursor:pointer;accent-color:var(--accent);}
+.toggle-item span{font-size:12px;color:var(--text2);}
+.toggle-item input:checked+span{color:var(--text);}
+.divider{height:.5px;background:var(--border);margin:1.5rem 0;}
+.prompt-box{background:var(--bg2);border:.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin:1rem 0;min-height:120px;}
+.prompt-box pre{font-size:12.5px;color:var(--text);white-space:pre-wrap;word-break:break-word;line-height:1.8;font-family:var(--font-mono);}
+.placeholder{font-size:13px;color:var(--text3);font-style:italic;}
+.tag-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.badge{font-size:11px;padding:2px 9px;border-radius:20px;background:var(--bg3);color:var(--text2);border:.5px solid var(--border);}
+.badge.accent{background:var(--bg4);color:var(--text);font-weight:500;}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.btn{font-family:var(--font-sans);font-size:13px;padding:8px 18px;border-radius:var(--radius);border:.5px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;transition:background .15s;}
+.btn:hover{background:var(--bg3);}
+.btn.primary{background:var(--accent);color:var(--bg);border-color:var(--accent);}
+.btn.primary:hover{opacity:.85;}
+.btn.star-btn{color:var(--star);border-color:var(--star);}
+.btn.star-btn:hover{background:var(--bg3);}
+.flash{font-size:12px;color:var(--success);opacity:0;transition:opacity .3s;}
+.flash.show{opacity:1;}
+.history-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+.hist-item{display:flex;align-items:center;gap:7px;padding:8px 12px;border:.5px solid var(--border);border-radius:var(--radius);background:var(--bg);}
+.hist-item.starred{border-color:var(--star);}
+.hist-star{font-size:14px;cursor:pointer;user-select:none;color:var(--text3);transition:color .15s;background:none;border:none;padding:0;line-height:1;}
+.hist-star.on{color:var(--star);}
+.hist-label{font-size:12px;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hist-time{font-size:11px;color:var(--text3);white-space:nowrap;}
+.hist-btn{font-size:11px;padding:3px 9px;border-radius:var(--radius);border:.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font-sans);white-space:nowrap;}
+.hist-btn:hover{background:var(--bg3);color:var(--text);}
+.hist-btn.del{color:#c0392b;border-color:#c0392b;}
+.hist-btn.del:hover{background:#fdf0ee;}
+.empty{font-size:12px;color:var(--text3);font-style:italic;padding:4px 0;}
+.two-col{display:flex;gap:1.5rem;flex-wrap:wrap;}
+.two-col>.section{flex:1;min-width:140px;margin-bottom:0;}
+.tab-bar{display:flex;gap:0;border-bottom:.5px solid var(--border);margin-bottom:1.25rem;}
+.tab{font-size:13px;padding:8px 16px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font-sans);transition:color .15s;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--text);border-bottom:2px solid var(--accent);font-weight:500;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+.series-card{border:.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;background:var(--bg2);margin-bottom:10px;}
+.series-card h3{font-size:14px;font-weight:500;margin-bottom:4px;}
+.series-card p{font-size:12px;color:var(--text2);line-height:1.6;}
+.series-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;background:var(--bg4);color:var(--text2);margin-right:4px;margin-bottom:4px;}
+.noob-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-top:6px;}
+.noob-card{border:.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;background:var(--bg2);cursor:pointer;transition:border-color .15s;user-select:none;}
+.noob-card:hover{border-color:var(--border2);}
+.noob-card.active{border-color:var(--accent);background:var(--bg3);}
+.noob-card .noob-title{font-size:12px;font-weight:500;margin-bottom:3px;}
+.noob-card .noob-desc{font-size:11px;color:var(--text2);line-height:1.5;}
+.tone-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;}
+.tone-card{border:.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;cursor:pointer;transition:border-color .15s;user-select:none;}
+.tone-card:hover{border-color:var(--border2);}
+.tone-card.active{border-color:var(--accent);background:var(--bg3);}
+.tone-card .tone-name{font-size:13px;font-weight:500;margin-bottom:3px;}
+.tone-card .tone-desc{font-size:11px;color:var(--text2);line-height:1.5;}
+.export-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+@media(max-width:500px){.page{padding:1.25rem 1rem 3rem;}header h1{font-size:17px;}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <div>
+    <h1>FCC Lab Prompt Generator <span style="font-size:12px;color:var(--text3);font-weight:400;">v3</span></h1>
+    <p>Generate hands-on coding workshops. Paste the output into any AI chat.</p>
+  </div>
+  <button class="random-all-btn" onclick="randomizeAll()">&#9661; Randomize everything</button>
+</header>
+
+<!-- TABS -->
+<div class="tab-bar">
+  <button class="tab active" onclick="switchTab('build',this)">Build lab</button>
+  <button class="tab" onclick="switchTab('series',this)">Project series</button>
+  <button class="tab" onclick="switchTab('noob',this)">Noob traps</button>
+  <button class="tab" onclick="switchTab('history',this)">History</button>
+</div>
+
+<!-- TAB: BUILD LAB -->
+<div class="tab-panel active" id="tab-build">
+
+  <div class="section">
+    <div class="section-title">Language(s)</div>
+    <div class="row">
+      <div class="field">
+        <input type="text" id="langInput" placeholder="Primary language (e.g. Python, JavaScript, SQL...)"/>
+      </div>
+      <div class="field">
+        <input type="text" id="lang2Input" placeholder="Mix in a second language? (optional, e.g. HTML, Bash...)"/>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Topic / range</div>
+    <input type="text" id="topicInput" placeholder="What did the student just learn? (e.g. for loops, async/await, list comprehension, OOP classes...)"/>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Lab type</div>
+    <div class="pill-group" id="labType">
+      <button class="pill active" data-val="random">random</button>
+      <button class="pill" data-val="mini project">mini project</button>
+      <button class="pill" data-val="real-world problem solving">real-world problem</button>
+      <button class="pill" data-val="type conversion / casting practice">type casting</button>
+      <button class="pill" data-val="math / algorithms">math / algorithms</button>
+      <button class="pill" data-val="input / output practice">input / output</button>
+      <button class="pill" data-val="data manipulation">data manipulation</button>
+      <button class="pill" data-val="debugging challenge">debugging</button>
+      <button class="pill" data-val="concept drill">concept drill</button>
+      <button class="pill" data-val="build and break (write it wrong first, then fix it)">build &amp; break</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Theme / context</div>
+    <div class="pill-group" id="theme">
+      <button class="pill active" data-val="none">no theme</button>
+      <button class="pill" data-val="space & astronomy">space</button>
+      <button class="pill" data-val="cooking & recipes">cooking</button>
+      <button class="pill" data-val="video games">games</button>
+      <button class="pill" data-val="e-commerce & shopping">e-commerce</button>
+      <button class="pill" data-val="sports & fitness">sports</button>
+      <button class="pill" data-val="social media & messaging">social media</button>
+      <button class="pill" data-val="finance & banking">finance</button>
+      <button class="pill" data-val="school & students">school</button>
+      <button class="pill" data-val="travel & maps">travel</button>
+      <button class="pill" data-val="music & audio">music</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Instructor tone</div>
+    <div class="tone-grid" id="toneGrid">
+      <div class="tone-card active" data-val="friendly tutor" onclick="selectTone(this)">
+        <div class="tone-name">Friendly tutor</div>
+        <div class="tone-desc">Encouraging, patient. Celebrates small wins. Best for beginners.</div>
+      </div>
+      <div class="tone-card" data-val="strict instructor" onclick="selectTone(this)">
+        <div class="tone-name">Strict instructor</div>
+        <div class="tone-desc">No hand-holding. Concise. Expects the student to think first.</div>
+      </div>
+      <div class="tone-card" data-val="Socratic guide" onclick="selectTone(this)">
+        <div class="tone-name">Socratic guide</div>
+        <div class="tone-desc">Asks questions instead of giving answers. Forces deep thinking.</div>
+      </div>
+      <div class="tone-card" data-val="challenge mode" onclick="selectTone(this)">
+        <div class="tone-name">Challenge mode</div>
+        <div class="tone-desc">Pushes hard. Extra constraints. Competitive feel. No hints given.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col" style="margin-top:1.2rem;">
+    <div class="section">
+      <div class="section-title">Difficulty</div>
+      <div class="pill-group" id="difficulty">
+        <button class="pill active" data-val="beginner">beginner</button>
+        <button class="pill" data-val="intermediate">intermediate</button>
+        <button class="pill" data-val="challenging">challenging</button>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Steps</div>
+      <div class="pill-group" id="steps">
+        <button class="pill" data-val="5">5</button>
+        <button class="pill active" data-val="8">8</button>
+        <button class="pill" data-val="12">12</button>
+        <button class="pill" data-val="15+">15+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="margin-top:1.2rem;">
+    <div class="section-title">Output options</div>
+    <div class="toggle-row">
+      <label class="toggle-item"><input type="checkbox" id="chkHints" checked/><span>hints per step</span></label>
+      <label class="toggle-item"><input type="checkbox" id="chkOutput" checked/><span>expected output</span></label>
+      <label class="toggle-item"><input type="checkbox" id="chkTests" checked/><span>test cases</span></label>
+      <label class="toggle-item"><input type="checkbox" id="chkScaffold" checked/><span>starter scaffold</span></label>
+      <label class="toggle-item"><input type="checkbox" id="chkConstraint"/><span>constraint mode</span></label>
+      <label class="toggle-item"><input type="checkbox" id="chkEdge" checked/><span>edge cases</span></label>
+      <label class="toggle-item"><input type="checkbox" id="chkNoob" checked/><span>noob traps</span></label>
+      <label class="toggle-item"><input type="checkbox" id="chkTypeCast"/><span>type casting steps</span></label>
+    </div>
+    <div id="constraintRow" style="margin-top:8px;display:none;">
+      <input type="text" id="constraintInput" placeholder="e.g. no loops, no built-in functions, recursion only..."/>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="prompt-box" id="promptBox">
+    <p class="placeholder">Configure options above and click Generate — or hit "Randomize everything" to surprise yourself.</p>
+  </div>
+
+  <div class="tag-row" id="tagRow" style="display:none;"></div>
+
+  <div class="actions">
+    <button class="btn primary" onclick="generatePrompt()">Generate</button>
+    <button class="btn" onclick="copyPrompt()">Copy</button>
+    <button class="btn star-btn" onclick="starCurrent()">&#9733; Star this</button>
+    <button class="btn" onclick="exportSingle()">Export .txt</button>
+    <span class="flash" id="flash">Copied!</span>
+  </div>
+
+</div>
+
+<!-- TAB: PROJECT SERIES -->
+<div class="tab-panel" id="tab-series">
+  <p style="font-size:13px;color:var(--text2);margin-bottom:1.25rem;line-height:1.7;">
+    A <strong style="color:var(--text);">project series</strong> is a set of labs that build on each other — each one extends what you built in the previous one, ending in a real working project. Fill in the details and generate a multi-part series prompt.
+  </p>
+
+  <div class="section">
+    <div class="section-title">Series topic &amp; language</div>
+    <div class="row">
+      <div class="field"><input type="text" id="sLang" placeholder="Language (e.g. Python)"/></div>
+      <div class="field"><input type="text" id="sTopic" placeholder="What is the series about? (e.g. building a CLI task manager)"/></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Number of labs in the series</div>
+    <div class="pill-group" id="seriesCount">
+      <button class="pill" data-val="3">3 labs</button>
+      <button class="pill active" data-val="5">5 labs</button>
+      <button class="pill" data-val="7">7 labs</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Series difficulty arc</div>
+    <div class="pill-group" id="seriesArc">
+      <button class="pill active" data-val="gentle ramp (beginner → intermediate)">gentle ramp</button>
+      <button class="pill" data-val="steep ramp (beginner → advanced)">steep ramp</button>
+      <button class="pill" data-val="consistent intermediate throughout">consistent intermediate</button>
+      <button class="pill" data-val="alternating easy/hard">alternating easy/hard</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Real-world angle</div>
+    <div class="pill-group" id="seriesRealWorld">
+      <button class="pill active" data-val="none">no specific angle</button>
+      <button class="pill" data-val="something a junior developer would actually build at work">junior dev task</button>
+      <button class="pill" data-val="a freelance project a client might request">freelance project</button>
+      <button class="pill" data-val="a personal productivity tool">personal tool</button>
+      <button class="pill" data-val="an open-source utility">open-source utility</button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="prompt-box" id="seriesPromptBox">
+    <p class="placeholder">Fill in the details above and click Generate Series.</p>
+  </div>
+
+  <div class="actions">
+    <button class="btn primary" onclick="generateSeries()">Generate series</button>
+    <button class="btn" onclick="copyBox('seriesPromptBox')">Copy</button>
+    <button class="btn" onclick="exportBox('seriesPromptBox','series_prompt.txt')">Export .txt</button>
+    <span class="flash" id="flashSeries"></span>
+  </div>
+</div>
+
+<!-- TAB: NOOB TRAPS -->
+<div class="tab-panel" id="tab-noob">
+  <p style="font-size:13px;color:var(--text2);margin-bottom:1.25rem;line-height:1.7;">
+    Select the traps &amp; pitfalls you want included in your lab. The generated prompt will force the student to encounter and fix each one. These are the things that stump new developers most.
+  </p>
+
+  <div class="noob-grid" id="noobGrid">
+  </div>
+
+  <div style="margin-top:1rem;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+    <button class="btn" onclick="selectAllNoobs()">Select all</button>
+    <button class="btn" onclick="clearAllNoobs()">Clear all</button>
+    <span style="font-size:12px;color:var(--text3);" id="noobCount">0 selected</span>
+  </div>
+
+  <div class="section" style="margin-top:1.25rem;">
+    <div class="section-title">Language for this lab</div>
+    <div class="row">
+      <div class="field"><input type="text" id="noobLang" placeholder="Language (e.g. Python, JavaScript...)"/></div>
+      <div class="field"><input type="text" id="noobTopic" placeholder="Topic context (e.g. functions, arrays...)"/></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="prompt-box" id="noobPromptBox">
+    <p class="placeholder">Select traps above and click Generate Noob Trap Lab.</p>
+  </div>
+
+  <div class="actions">
+    <button class="btn primary" onclick="generateNoobLab()">Generate noob trap lab</button>
+    <button class="btn" onclick="copyBox('noobPromptBox')">Copy</button>
+    <button class="btn" onclick="exportBox('noobPromptBox','noob_trap_lab.txt')">Export .txt</button>
+    <span class="flash" id="flashNoob"></span>
+  </div>
+</div>
+
+<!-- TAB: HISTORY -->
+<div class="tab-panel" id="tab-history">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:1rem;">
+    <span style="font-size:13px;color:var(--text2);">Last <strong style="color:var(--text);">20</strong> generated prompts. Starred ones are pinned to the top.</span>
+    <div style="display:flex;gap:8px;">
+      <button class="btn" onclick="exportAll()">Export all as .txt</button>
+      <button class="btn" style="color:#c0392b;border-color:#c0392b;" onclick="clearHistory()">Clear all</button>
+    </div>
+  </div>
+  <div class="history-list" id="histList">
+    <p class="empty">No prompts yet. Generate some labs first.</p>
+  </div>
+</div>
+
+</div><!-- end .page -->
+
+<script>
+var history=[];
+var currentPrompt='';
+var currentSeriesPrompt='';
+
+/* ---- NOOB TRAPS DATA ---- */
+var noobTraps=[
+  {id:'typecoerce',title:'Type coercion surprises',desc:'e.g. "5"+3="53" in JS, or int("3.5") failing in Python'},
+  {id:'mutabledefault',title:'Mutable default arguments',desc:'def fn(lst=[]) — the list persists between calls'},
+  {id:'offbyone',title:'Off-by-one errors',desc:'Loops that run one time too many or too few'},
+  {id:'scopeconfusion',title:'Variable scope confusion',desc:'Local vs global, closures, unexpected UnboundLocalError'},
+  {id:'nullref',title:'None/null reference errors',desc:'Calling methods on None/null without checking first'},
+  {id:'floatprecision',title:'Float precision bugs',desc:'0.1 + 0.2 !== 0.3 — why math breaks with decimals'},
+  {id:'wrongequality',title:'= vs == vs ===',desc:'Assignment vs comparison — a classic silent bug'},
+  {id:'stringimmut',title:'String immutability',desc:'Trying to change a character in a string directly'},
+  {id:'listcopy',title:'Shallow vs deep copy',desc:'list2 = list1 doesn\'t copy — both point to same object'},
+  {id:'asyncmisuse',title:'Async/await mistakes',desc:'Forgetting await, or calling async fn without handling the promise'},
+  {id:'indexerror',title:'Index out of range',desc:'Accessing list[-1] or list[len] without checking length'},
+  {id:'typecast',title:'Type casting chain',desc:'int → str → float → bool — convert across types correctly'},
+  {id:'truthiness',title:'Truthiness traps',desc:'if 0, if "", if [], if None — all falsy but easy to misuse'},
+  {id:'infloop',title:'Infinite loop',desc:'While loop that never meets its exit condition'},
+  {id:'returnvsnone',title:'Forgetting return',desc:'Function runs but returns None because return was forgotten'},
+  {id:'dictkey',title:'Missing dict key',desc:'KeyError when accessing a key that might not exist'},
+  {id:'strformat',title:'String formatting',desc:'Mixing old %, .format(), and f-strings — and when each breaks'},
+  {id:'importerr',title:'Import / module errors',desc:'Wrong path, circular imports, missing package'},
+  {id:'indentation',title:'Indentation bugs',desc:'Python IndentationError or logic bugs from wrong indent'},
+  {id:'comparenone',title:'Comparing with None wrong',desc:'Using == None instead of is None'},
+];
+
+var selectedNoobs=new Set();
+
+function buildNoobGrid(){
+  var grid=document.getElementById('noobGrid');
+  grid.innerHTML=noobTraps.map(function(t){
+    return '<div class="noob-card" id="nc-'+t.id+'" onclick="toggleNoob(\''+t.id+'\')">'
+      +'<div class="noob-title">'+t.title+'</div>'
+      +'<div class="noob-desc">'+t.desc+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function toggleNoob(id){
+  if(selectedNoobs.has(id)){selectedNoobs.delete(id);document.getElementById('nc-'+id).classList.remove('active');}
+  else{selectedNoobs.add(id);document.getElementById('nc-'+id).classList.add('active');}
+  document.getElementById('noobCount').textContent=selectedNoobs.size+' selected';
+}
+
+function selectAllNoobs(){
+  noobTraps.forEach(function(t){selectedNoobs.add(t.id);document.getElementById('nc-'+t.id).classList.add('active');});
+  document.getElementById('noobCount').textContent=selectedNoobs.size+' selected';
+}
+
+function clearAllNoobs(){
+  noobTraps.forEach(function(t){selectedNoobs.delete(t.id);document.getElementById('nc-'+t.id).classList.remove('active');});
+  document.getElementById('noobCount').textContent='0 selected';
+}
+
+/* ---- TABS ---- */
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ---- PILL GROUP ---- */
+document.querySelectorAll('.pill-group').forEach(function(g){
+  g.querySelectorAll('.pill').forEach(function(p){
+    p.addEventListener('click',function(){
+      g.querySelectorAll('.pill').forEach(function(x){x.classList.remove('active');});
+      p.classList.add('active');
+    });
+  });
+});
+
+function getActive(id){
+  var el=document.querySelector('#'+id+' .pill.active');
+  return el?el.dataset.val:'';
+}
+
+/* ---- TONE ---- */
+function selectTone(card){
+  document.querySelectorAll('.tone-card').forEach(function(c){c.classList.remove('active');});
+  card.classList.add('active');
+}
+
+function getActiveTone(){
+  var el=document.querySelector('.tone-card.active');
+  return el?el.dataset.val:'friendly tutor';
+}
+
+/* ---- CONSTRAINT TOGGLE ---- */
+document.getElementById('chkConstraint').addEventListener('change',function(){
+  document.getElementById('constraintRow').style.display=this.checked?'block':'none';
+});
+
+/* ---- RANDOMIZE ALL ---- */
+var labTypeVals=['random','mini project','real-world problem solving','type conversion / casting practice','math / algorithms','input / output practice','data manipulation','debugging challenge','concept drill','build and break (write it wrong first, then fix it)'];
+var themeVals=['none','space & astronomy','cooking & recipes','video games','e-commerce & shopping','sports & fitness','social media & messaging','finance & banking','school & students','travel & maps','music & audio'];
+var diffVals=['beginner','intermediate','challenging'];
+var stepsVals=['5','8','12','15+'];
+var toneVals=['friendly tutor','strict instructor','Socratic guide','challenge mode'];
+var langSuggestions=['Python','JavaScript','SQL','HTML/CSS','Bash','TypeScript','Java','C','Go'];
+var topicSuggestions=['for loops and while loops','functions and return values','lists and dictionaries','string manipulation','error handling with try/except','classes and OOP','recursion','async/await','file I/O','DOM manipulation','array methods','closures','type casting between int/str/float/bool','list comprehension','higher-order functions'];
+
+function randomPick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+function setPillActive(groupId,val){
+  var pills=document.querySelectorAll('#'+groupId+' .pill');
+  pills.forEach(function(p){p.classList.toggle('active',p.dataset.val===val);});
+}
+
+function randomizeAll(){
+  document.getElementById('langInput').value=randomPick(langSuggestions);
+  document.getElementById('lang2Input').value=Math.random()>0.6?randomPick(['HTML','Bash','CSS','JSON','TypeScript']):'';
+  document.getElementById('topicInput').value=randomPick(topicSuggestions);
+  setPillActive('labType',randomPick(labTypeVals));
+  setPillActive('theme',randomPick(themeVals));
+  setPillActive('difficulty',randomPick(diffVals));
+  setPillActive('steps',randomPick(stepsVals));
+  var tone=randomPick(toneVals);
+  document.querySelectorAll('.tone-card').forEach(function(c){c.classList.toggle('active',c.dataset.val===tone);});
+  var checks=['chkHints','chkOutput','chkTests','chkScaffold','chkEdge','chkNoob','chkTypeCast','chkConstraint'];
+  checks.forEach(function(id){document.getElementById(id).checked=Math.random()>0.4;});
+  document.getElementById('constraintRow').style.display=document.getElementById('chkConstraint').checked?'block':'none';
+  if(document.getElementById('chkConstraint').checked){
+    var constraints=['no loops allowed','no built-in sort','must use recursion','no if/else — use ternary only','single line per task'];
+    document.getElementById('constraintInput').value=randomPick(constraints);
+  }
+  generatePrompt();
+}
+
+/* ---- GENERATE MAIN LAB ---- */
+function generatePrompt(){
+  var lang=document.getElementById('langInput').value.trim()||'Python';
+  var lang2=document.getElementById('lang2Input').value.trim();
+  var topic=document.getElementById('topicInput').value.trim()||'general topics';
+  var labType=getActive('labType');
+  var theme=getActive('theme');
+  var diff=getActive('difficulty');
+  var steps=getActive('steps');
+  var tone=getActiveTone();
+  var hints=document.getElementById('chkHints').checked;
+  var output=document.getElementById('chkOutput').checked;
+  var tests=document.getElementById('chkTests').checked;
+  var scaffold=document.getElementById('chkScaffold').checked;
+  var constraint=document.getElementById('chkConstraint').checked;
+  var edge=document.getElementById('chkEdge').checked;
+  var noob=document.getElementById('chkNoob').checked;
+  var typecast=document.getElementById('chkTypeCast').checked;
+  var constraintText=document.getElementById('constraintInput').value.trim();
+
+  var labLine=labType==='random'
+    ?'Randomly pick the best lab type (mini project, real-world problem, type casting practice, math/algorithm, I/O, data manipulation, debugging, concept drill, or build-and-break) for this topic.'
+    :'Lab type: '+labType+'.';
+
+  var langLine='Primary language: '+lang+(lang2?'. Mix in '+lang2+' where it naturally fits (e.g. use '+lang2+' for a specific sub-task or output step).':'.');
+
+  var themeLine=theme==='none'?''
+    :'\nTheme: Set every example, variable name, function name, and context inside the world of "'+theme+'". Every step should feel like it belongs in that world.';
+
+  var toneLine='\nInstructor tone: '+tone+'. '
+    +{'friendly tutor':'Be warm and encouraging. Celebrate progress. Use phrases like "Great job!" and "You\'ve got this." Explain why each step matters.',
+      'strict instructor':'Be concise and direct. No cheerleading. State the task, state the expectation. The student either figures it out or they read the docs.',
+      'Socratic guide':'Do not give direct answers. At each step, pose a question or mini-challenge that leads the student to discover the answer themselves. Reveal the solution only after they would have tried.',
+      'challenge mode':'This is competitive mode. Use a tough, no-hints tone. Add an extra constraint mid-lab. Tell the student their code will be reviewed. Remove hints entirely.'}[tone];
+
+  var constraintLine='';
+  if(constraint&&constraintText)constraintLine='\nConstraint: The student must complete the entire lab under this rule: '+constraintText+'. Restate the constraint at the top and before each step.';
+  else if(constraint)constraintLine='\nConstraint mode: Pick one clever restriction (no built-in sort, no loops, recursion only, single-line solutions) and apply it to every step. State it at the top.';
+
+  var edgeLine=edge?'\n- At least 2 steps must involve handling edge cases or runtime errors (empty input, None/null, division by zero, wrong type). Show what should happen and why.'  :'';
+  var noobLine=noob?'\n- Weave in at least 3 classic "noob trap" mistakes that new developers commonly make on this topic (e.g. off-by-one, wrong equality check, mutating a default arg, forgetting return). Have the student encounter each one and fix it — do not warn them in advance.'  :'';
+  var typecastLine=typecast?'\n- Include at least 2 steps that practice type conversion/casting: int to str, str to float, float to bool, etc. Show what each conversion produces and what happens when it fails (e.g. int("hello")).'  :'';
+
+  var stepFmt='Each step must follow this exact format:\n**Step N: [short specific title]**\nInstruction: [tell the student exactly what to write — name every function, variable, and value. Never say "write a function", say "write a function called process_order(item, qty) that returns a formatted string"]\n';
+  if(output)stepFmt+='Expected output: [show exactly what running the code should print or return]\n';
+  if(hints&&tone!=='challenge mode')stepFmt+='Hint: [one short practical tip — only if it would genuinely help]\n';
+
+  var extras=[];
+  if(scaffold)extras.push('- Begin with a starter scaffold: a partial file with function stubs, variable names, and TODO comments. The student fills it in as they go through the steps.');
+  if(tests)extras.push('- After the last step, include 3–5 test cases or assertions the student can run to verify their code. Use the language\'s native assert or a simple print-check pattern. Include one test that should fail (wrong input) so they see the error.');
+  extras.push('- End with a Bonus Challenge — a real extension that makes the project more useful, not just a repeat of what they built.');
+
+  var stepsLabel=steps==='15+'?'15 or more':steps;
+
+  var prompt='You are a FreeCodeCamp-style coding workshop instructor.\n\n'
+    +'Generate a hands-on lab for a student who just finished learning: **'+topic+'** in **'+lang+'**.\n\n'
+    +langLine+themeLine+toneLine+constraintLine
+    +'\nDifficulty: '+diff
+    +'\nTotal steps: '+stepsLabel+' clearly numbered steps'
+    +edgeLine+noobLine+typecastLine
+    +'\n\n---\n\nOutput format:\n\n'
+    +'## Lab: [creative, specific title that reflects the real task]\n'
+    +'**Goal:** [one concrete sentence — what will the student have built by the end]\n'
+    +'**Skills practiced:** [comma-separated]\n'
+    +(constraint?'**Constraint:** [state the rule clearly]\n':'')
+    +'\n---\n\n'
+    +stepFmt
+    +'\n---\n\n'
+    +extras.join('\n')
+    +'\n\n---\n\n'
+    +'Important: Every instruction must be concrete. Never say "create a variable" — say "create a variable called total_price and set it to 0.0". The student must be able to act immediately on every single step with zero ambiguity.';
+
+  currentPrompt=prompt;
+  document.getElementById('promptBox').innerHTML='<pre>'+escHtml(prompt)+'</pre>';
+
+  var tagRow=document.getElementById('tagRow');
+  tagRow.style.display='flex';
+  var tags=[lang+(lang2?' + '+lang2:''),topic,labType,diff,steps+' steps',tone];
+  if(theme!=='none')tags.push(theme);
+  tagRow.innerHTML=tags.map(function(t){return'<span class="badge">'+escHtml(t)+'</span>';}).join('');
+
+  addHistory(lang+(lang2?'+'+lang2:''),topic,labType,diff,tone,prompt,false);
+}
+
+/* ---- GENERATE SERIES ---- */
+function generateSeries(){
+  var lang=document.getElementById('sLang').value.trim()||'Python';
+  var topic=document.getElementById('sTopic').value.trim()||'a command-line tool';
+  var count=getActive('seriesCount');
+  var arc=getActive('seriesArc');
+  var realWorld=getActive('seriesRealWorld');
+
+  var rwLine=realWorld==='none'?''
+    :'\nReal-world angle: Frame this as '+realWorld+'. Make it feel like a real thing someone would actually build and use.';
+
+  var prompt='You are a FreeCodeCamp curriculum designer.\n\n'
+    +'Design a **'+count+'-part project series** in **'+lang+'** where each lab builds directly on the previous one.\n\n'
+    +'Series subject: '+topic
+    +'\nDifficulty arc: '+arc
+    +rwLine
+    +'\n\n---\n\nFor EACH lab in the series, output:\n\n'
+    +'## Lab [N] of '+count+': [title]\n'
+    +'**What was built in the previous lab:** [brief recap — skip for Lab 1]\n'
+    +'**What we add in this lab:** [1 sentence]\n'
+    +'**Skills introduced:** [comma-separated — only NEW skills, not repeats]\n'
+    +'**Steps (6–10):**\n'
+    +'  Step 1: [exact instruction — name every variable and function]\n'
+    +'  ...\n'
+    +'**Expected final state:** [what the project looks like/does at the end of this lab]\n'
+    +'**Noob trap to watch:** [one specific mistake students often make at this stage]\n\n'
+    +'---\n\n'
+    +'After all labs, add:\n'
+    +'## Final project checklist\n'
+    +'A list of 8–12 things the student can verify to confirm their full project works correctly.\n\n'
+    +'## Extension ideas\n'
+    +'3–5 real features they could add to turn this into a portfolio-worthy project.\n\n'
+    +'---\n\nMake every lab feel like a real step forward. The student should be able to run the project after every single lab and see it do something new.';
+
+  document.getElementById('seriesPromptBox').innerHTML='<pre>'+escHtml(prompt)+'</pre>';
+  currentSeriesPrompt=prompt;
+  addHistory(lang,topic,'project series',arc,'curriculum designer',prompt,false);
+}
+
+/* ---- GENERATE NOOB TRAP LAB ---- */
+function generateNoobLab(){
+  var lang=document.getElementById('noobLang').value.trim()||'Python';
+  var topic=document.getElementById('noobTopic').value.trim()||'general programming';
+  var selected=noobTraps.filter(function(t){return selectedNoobs.has(t.id);});
+  if(!selected.length){
+    document.getElementById('noobPromptBox').innerHTML='<p class="placeholder">Select at least one noob trap above first.</p>';
+    return;
+  }
+  var trapList=selected.map(function(t){return'- **'+t.title+'**: '+t.desc;}).join('\n');
+
+  var prompt='You are a FreeCodeCamp-style coding workshop instructor specializing in debugging and common mistakes.\n\n'
+    +'Generate a hands-on lab in **'+lang+'** around the topic of **'+topic+'**.\n\n'
+    +'This lab is specifically designed to make students ENCOUNTER and FIX the following classic beginner mistakes:\n\n'
+    +trapList+'\n\n'
+    +'---\n\nLab design rules:\n'
+    +'- Do NOT warn the student about the traps in advance. Let them hit each one naturally.\n'
+    +'- Each trap must appear as a real step where the student writes code that breaks or behaves unexpectedly.\n'
+    +'- After they encounter the bug, a "What went wrong?" sub-step explains the root cause in plain English.\n'
+    +'- Then a "Fix it" sub-step tells them exactly what to change.\n'
+    +'- The whole lab must tell a coherent story — not a random list of bugs. Wrap it in a mini project or scenario.\n\n'
+    +'Output format:\n\n'
+    +'## Lab: [title that hints at the theme, not the bugs]\n'
+    +'**Goal:** [what the student thinks they are building]\n'
+    +'**Hidden agenda:** [the traps they will encounter — reveal this at the top so the instructor knows, but tell the student to try to figure out bugs on their own]\n\n'
+    +'---\n\n'
+    +'**Step N: [task title]**\n'
+    +'Instruction: [write this code or do this task]\n'
+    +'Expected output: [what they expect]\n'
+    +'Actual output: [what they actually get — the bug]\n'
+    +'What went wrong: [plain English explanation of the root cause]\n'
+    +'Fix it: [exact change to make]\n\n'
+    +'---\n\n'
+    +'End the lab with a "Trap cheat sheet" — a compact reference card summarizing each trap and its fix, formatted so the student can save it.';
+
+  document.getElementById('noobPromptBox').innerHTML='<pre>'+escHtml(prompt)+'</pre>';
+  addHistory(lang,topic,'noob trap lab',selected.length+' traps','debug instructor',prompt,false);
+}
+
+/* ---- HISTORY ---- */
+function addHistory(lang,topic,type,diff,tone,prompt,starred){
+  var label=lang+' / '+topic+' — '+type+' ('+diff+')';
+  var now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  history.unshift({label:label,prompt:prompt,time:now,starred:starred||false});
+  if(history.length>20)history.pop();
+  renderHistory();
+}
+
+function renderHistory(){
+  var list=document.getElementById('histList');
+  if(!history.length){list.innerHTML='<p class="empty">No prompts yet.</p>';return;}
+  var sorted=history.slice().sort(function(a,b){return(b.starred?1:0)-(a.starred?1:0);});
+  list.innerHTML=sorted.map(function(h,i){
+    var realIdx=history.indexOf(h);
+    return'<div class="hist-item'+(h.starred?' starred':'')+'" id="hi-'+realIdx+'">'
+      +'<button class="hist-star'+(h.starred?' on':'')+'" onclick="toggleStar('+realIdx+')" title="Star">'+(h.starred?'&#9733;':'&#9734;')+'</button>'
+      +'<span class="hist-label">'+escHtml(h.label)+'</span>'
+      +'<span class="hist-time">'+h.time+'</span>'
+      +'<button class="hist-btn" onclick="loadHist('+realIdx+')">Load</button>'
+      +'<button class="hist-btn" onclick="copyHist('+realIdx+')">Copy</button>'
+      +'<button class="hist-btn" onclick="exportHist('+realIdx+')">Export</button>'
+      +'<button class="hist-btn del" onclick="deleteHist('+realIdx+')">&#10005;</button>'
+      +'</div>';
+  }).join('');
+}
+
+function toggleStar(i){
+  history[i].starred=!history[i].starred;
+  renderHistory();
+}
+
+function loadHist(i){
+  currentPrompt=history[i].prompt;
+  document.getElementById('promptBox').innerHTML='<pre>'+escHtml(history[i].prompt)+'</pre>';
+  switchTab('build',document.querySelector('.tab'));
+  document.querySelectorAll('.tab').forEach(function(t,idx){if(idx===0)t.classList.add('active');else t.classList.remove('active');});
+  document.querySelectorAll('.tab-panel').forEach(function(p,idx){if(idx===0)p.classList.add('active');else p.classList.remove('active');});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function copyHist(i){
+  navigator.clipboard.writeText(history[i].prompt).then(showFlash);
+}
+
+function exportHist(i){
+  downloadTxt(history[i].prompt,'lab_prompt_'+i+'.txt');
+}
+
+function deleteHist(i){
+  history.splice(i,1);
+  renderHistory();
+}
+
+function clearHistory(){
+  if(confirm('Clear all history?')){history=[];renderHistory();}
+}
+
+function exportAll(){
+  if(!history.length)return;
+  var txt=history.map(function(h,i){
+    return'=== PROMPT '+(i+1)+' ===\n'+h.label+(h.starred?' [STARRED]':'')+'\n'+h.time+'\n\n'+h.prompt+'\n\n';
+  }).join('----------------------------------------\n\n');
+  downloadTxt(txt,'all_lab_prompts.txt');
+}
+
+/* ---- COPY / EXPORT HELPERS ---- */
+function copyPrompt(){
+  if(!currentPrompt)return;
+  navigator.clipboard.writeText(currentPrompt).then(showFlash);
+}
+
+function starCurrent(){
+  if(!currentPrompt)return;
+  if(history.length&&history[0].prompt===currentPrompt){
+    history[0].starred=true;
+    renderHistory();
+    showFlash('Starred!');
+  }
+}
+
+function exportSingle(){
+  if(!currentPrompt)return;
+  downloadTxt(currentPrompt,'lab_prompt.txt');
+}
+
+function copyBox(id){
+  var pre=document.querySelector('#'+id+' pre');
+  if(!pre)return;
+  navigator.clipboard.writeText(pre.textContent).then(function(){
+    var f=id==='seriesPromptBox'?'flashSeries':'flashNoob';
+    var el=document.getElementById(f);
+    el.textContent='Copied!';el.style.color='var(--success)';el.style.opacity=1;
+    setTimeout(function(){el.style.opacity=0;},2000);
+  });
+}
+
+function exportBox(id,filename){
+  var pre=document.querySelector('#'+id+' pre');
+  if(!pre)return;
+  downloadTxt(pre.textContent,filename);
+}
+
+function downloadTxt(text,filename){
+  var blob=new Blob([text],{type:'text/plain'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function showFlash(msg){
+  var f=document.getElementById('flash');
+  f.textContent=msg||'Copied!';
+  f.classList.add('show');
+  setTimeout(function(){f.classList.remove('show');},2000);
+}
+
+function escHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+buildNoobGrid();
+</script>
+</body>
+</html>
