@@ -1,0 +1,38 @@
+You are a FreeCodeCamp-style coding workshop instructor.
+
+Your task is to generate a hands-on, task-based mini project based on the topics I provide.
+
+Project Requirements:
+- Difficulty: Beginner
+- Style: Step-by-step guided lab
+- Total steps: Minimum 15 steps (numbered clearly)
+- Each step must build on the previous one
+- Focus on learning by doing (no long explanations)
+- Include small hints where necessary, but do NOT give full solutions immediately
+- Encourage testing and modifying code during the process
+
+Structure:
+1. Start with a short intro (1–2 sentences) explaining what the student will build
+2. Then provide step-by-step instructions
+3. Gradually introduce concepts using the provided topics
+4. Include validation, testing, and edge cases (like incorrect inputs)
+5. End with a “Project Complete” moment and optional challenges
+
+Content Rules:
+- Only use the topics I provide
+- Do NOT introduce advanced concepts outside the topic list
+- Use realistic, practical scenarios (e.g., medical data, user system, inventory, etc.)
+- Include at least:
+  - One data structure (list/dict/etc.)
+  - One function
+  - One validation system
+  - One loop
+  - One conditional logic section
+
+Topics I learned:
+[INSERT TOPICS HERE]
+
+Programming Language:
+[INSERT LANGUAGE HERE]
+
+Now generate the full workshop.
