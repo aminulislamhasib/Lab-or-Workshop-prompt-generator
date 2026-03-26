@@ -1,0 +1,208 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1.5rem 0; }
+h2 { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
+.sub { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.5rem; line-height: 1.6; }
+.section-label { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.topic-input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.topic-input-row input { flex: 1; padding: 8px 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); font-size: 14px; font-family: var(--font-sans); }
+.add-btn { padding: 8px 14px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); font-size: 14px; font-family: var(--font-sans); cursor: pointer; white-space: nowrap; }
+.add-btn:hover { background: var(--color-background-secondary); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; min-height: 36px; margin-bottom: 1.5rem; }
+.chip { display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 12px; background: #E6F1FB; border: 0.5px solid #378ADD; border-radius: 999px; font-size: 13px; color: #0C447C; }
+.chip button { background: none; border: none; cursor: pointer; color: #378ADD; font-size: 15px; line-height: 1; padding: 0; display: flex; align-items: center; }
+.chip button:hover { color: #0C447C; }
+.empty-chips { font-size: 13px; color: var(--color-text-tertiary); font-style: italic; line-height: 36px; }
+.divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 1.25rem 0; }
+.controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
+.control-group label { display: block; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 6px; }
+select { width: 100%; padding: 8px 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); font-size: 14px; font-family: var(--font-sans); }
+.domain-row { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+.domain-row input { flex: 1; padding: 8px 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); font-size: 14px; font-family: var(--font-sans); }
+.generate-btn { width: 100%; padding: 10px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 14px; font-family: var(--font-sans); color: var(--color-text-primary); cursor: pointer; margin-bottom: 1.5rem; transition: background 0.15s; }
+.generate-btn:hover { background: var(--color-background-secondary); }
+.output-box { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); background: var(--color-background-secondary); padding: 1.25rem; min-height: 60px; }
+.output-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.output-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); }
+.copy-btn { font-size: 12px; padding: 4px 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-secondary); cursor: pointer; font-family: var(--font-sans); }
+.copy-btn:hover { background: var(--color-background-secondary); }
+.prompt-text { font-size: 13px; color: var(--color-text-primary); line-height: 1.7; white-space: pre-wrap; font-family: var(--font-mono); }
+.placeholder { font-size: 14px; color: var(--color-text-tertiary); font-style: italic; }
+.hint { font-size: 12px; color: var(--color-text-tertiary); margin-top: -6px; margin-bottom: 1rem; }
+</style>
+
+<div class="wrap">
+<h2>Project prompt generator</h2>
+<p class="sub">Type the topics you just learned, set your preferences, and get a prompt you can paste anywhere to get a hands-on mini project.</p>
+
+<div class="section-label">Topics you learned</div>
+<div class="topic-input-row">
+  <input id="topicInput" type="text" placeholder="e.g. for loops, list comprehensions, dictionaries..." />
+  <button class="add-btn" onclick="addTopic()">+ Add</button>
+</div>
+<p class="hint">Press Enter or click Add. You can add as many as you like.</p>
+<div class="chips" id="chipsContainer">
+  <span class="empty-chips" id="emptyMsg">No topics added yet</span>
+</div>
+
+<hr class="divider">
+
+<div class="controls">
+  <div class="control-group">
+    <label>Programming language</label>
+    <select id="langSelect">
+      <option>Python</option>
+      <option>JavaScript</option>
+      <option>TypeScript</option>
+      <option>Java</option>
+      <option>C#</option>
+      <option>Go</option>
+      <option>Ruby</option>
+      <option>Rust</option>
+      <option>Swift</option>
+      <option>Kotlin</option>
+      <option>PHP</option>
+      <option>C++</option>
+    </select>
+  </div>
+  <div class="control-group">
+    <label>Difficulty level</label>
+    <select id="levelSelect">
+      <option value="beginner">Beginner — guided steps with examples</option>
+      <option value="intermediate" selected>Intermediate — hints only where needed</option>
+      <option value="advanced">Advanced — requirements only, no hints</option>
+    </select>
+  </div>
+</div>
+
+<div class="section-label">Project domain / theme (optional)</div>
+<div class="domain-row">
+  <input id="domainInput" type="text" placeholder="e.g. recipe book, inventory tracker, student records, banking app..." />
+</div>
+<p class="hint">Leave blank to let the AI pick a fitting theme based on your topics.</p>
+
+<div class="controls">
+  <div class="control-group">
+    <label>Workshop style</label>
+    <select id="styleSelect">
+      <option value="step-by-step like freeCodeCamp (numbered steps, one concept per step, build incrementally)">Step-by-step (freeCodeCamp style)</option>
+      <option value="project brief with a requirements list and acceptance criteria">Project brief + requirements</option>
+      <option value="challenge-style with just a problem statement and expected output">Challenge (problem statement only)</option>
+      <option value="tutorial blog post style with explanations woven into each step">Tutorial blog post style</option>
+    </select>
+  </div>
+  <div class="control-group">
+    <label>Project size</label>
+    <select id="sizeSelect">
+      <option value="tiny (under 30 lines of code, single concept focus)">Tiny — under 30 lines</option>
+      <option value="small (30–80 lines, a few functions)" selected>Small — 30–80 lines</option>
+      <option value="medium (80–200 lines, multiple modules or classes)">Medium — 80–200 lines</option>
+    </select>
+  </div>
+</div>
+
+<button class="generate-btn" onclick="generate()">Generate prompt ↗</button>
+
+<div class="output-box">
+  <div class="output-header">
+    <span class="output-title">Your prompt</span>
+    <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">Copy</button>
+  </div>
+  <div id="outputArea"><p class="placeholder">Your prompt will appear here — ready to paste into any AI chat.</p></div>
+</div>
+</div>
+
+<script>
+const topics = [];
+
+const input = document.getElementById('topicInput');
+input.addEventListener('keydown', e => { if (e.key === 'Enter') addTopic(); });
+
+function addTopic() {
+  const val = input.value.trim();
+  if (!val) return;
+  const parts = val.split(',').map(s => s.trim()).filter(Boolean);
+  parts.forEach(p => { if (!topics.includes(p)) topics.push(p); });
+  input.value = '';
+  renderChips();
+}
+
+function removeTopic(t) {
+  const i = topics.indexOf(t);
+  if (i > -1) topics.splice(i, 1);
+  renderChips();
+}
+
+function renderChips() {
+  const c = document.getElementById('chipsContainer');
+  const empty = document.getElementById('emptyMsg');
+  c.innerHTML = '';
+  if (topics.length === 0) {
+    c.innerHTML = '<span class="empty-chips" id="emptyMsg">No topics added yet</span>';
+    return;
+  }
+  topics.forEach(t => {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.innerHTML = `<span>${t}</span><button onclick="removeTopic('${t.replace(/'/g, "\\'")}')">×</button>`;
+    c.appendChild(chip);
+  });
+}
+
+function generate() {
+  if (topics.length === 0) {
+    document.getElementById('outputArea').innerHTML = '<p class="placeholder">Add at least one topic first.</p>';
+    return;
+  }
+
+  const lang = document.getElementById('langSelect').value;
+  const level = document.getElementById('levelSelect').value;
+  const domain = document.getElementById('domainInput').value.trim();
+  const style = document.getElementById('styleSelect').value;
+  const size = document.getElementById('sizeSelect').value;
+
+  const domainLine = domain
+    ? `Project theme: ${domain}`
+    : `Project theme: choose a theme that naturally fits the listed topics — pick something practical and relatable.`;
+
+  const diffMap = {
+    beginner: "Each step should be very small. Show the syntax first with a short example, explain why it's used, then ask the learner to apply it. Never skip steps.",
+    intermediate: "Describe what each step should do. Include a hint or mini-example only for the trickiest parts. The learner writes the code themselves.",
+    advanced: "State only the requirement for each step. No code examples, no hints. The learner figures out the implementation independently."
+  };
+
+  const prompt = `You are a programming tutor creating a hands-on mini project workshop in ${lang}.
+
+${domainLine}
+Style: ${style}
+Size: ${size}
+Difficulty: ${level}
+
+The learner has just studied these topics:
+${topics.map((t, i) => `${i + 1}. ${t}`).join('\n')}
+
+Instructions:
+- Design a project that uses ALL of the topics listed above in a natural, realistic way.
+- ${diffMap[level]}
+- Introduce exactly one topic per step — do not combine multiple new concepts in a single step.
+- Open with a short project description (2–3 sentences) explaining what will be built.
+- Close with a "Test your work" section listing 2–3 things the learner can try to verify their solution works.
+- Only use standard ${lang} — no external libraries unless a listed topic explicitly requires one.
+- Use realistic, domain-appropriate sample data throughout.
+
+Start the workshop now.`;
+
+  document.getElementById('outputArea').innerHTML = `<pre class="prompt-text">${prompt}</pre>`;
+}
+
+function copyPrompt() {
+  const pre = document.querySelector('.prompt-text');
+  if (!pre) return;
+  navigator.clipboard.writeText(pre.textContent).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+</script>
